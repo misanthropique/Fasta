@@ -9,6 +9,7 @@
 #include <fstream>
 #include <map>
 #include <ostream>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -17,6 +18,7 @@
  * Notes:
  *   - Requires C++14 minimum
  * Todo:
+ *   - Remove leading whitespace after removing the leading '>' on sequence identifiers.
  *   - Add support for bare sequence files.
  */
 
@@ -60,7 +62,7 @@ private:
 			mIdentifier.end() );
 
 		// Remove the leading '>' if present
-		mIdentifier = mIdentifier.substr( '>' == mIdentifier[ index ] );
+		mIdentifier = mIdentifier.substr( '>' == mIdentifier[ 0 ] );
 	}
 
 	// Remove control characters and
@@ -247,14 +249,14 @@ private:
 	using IdentifierSequenceMapType = std::map< std::string, std::vector< FastaSequence > >;
 
 	bool mDuplicateIdentifiersAllowed;
-	std::vector< std::string > mIdentifiersList;
+	std::set< std::string > mIdentifiersSet;
 	IdentifierSequenceMapType mIdentifierSequenceMap;
 
 	void _copyAssign(
 		const FastaFile& other )
 	{
 		mDuplicateIdentifiersAllowed = other.mDuplicateIdentifiersAllowed;
-		mIdentifiersList = other.mIdentifiersList;
+		mIdentifiersSet = other.mIdentifiersSet;
 		mIdentifierSequenceMap = other.mIdentifierSequenceMap;
 	}
 
@@ -262,7 +264,7 @@ private:
 		FastaFile&& other )
 	{
 		mDuplicateIdentifiersAllowed = std::exchange( other.mDuplicateIdentifiersAllowed, true );
-		mIdentifiersList = std::move( other.mIdentifiersList );
+		mIdentifiersSet = std::move( other.mIdentifiersSet );
 		mIdentifierSequenceMap = std::move( other.mIdentifierSequenceMap );
 	}
 
@@ -273,12 +275,14 @@ public:
 	class iterator
 	{
 	private:
+		friend class FastaFile;
+
 		bool mIsValid;
 		IdentifierSequenceMapType::iterator mMapIterator;
 		size_t mVectorOffset;
 
 		iterator(
-			IdentifierSequenceMapType::iterator& mapIterator )
+			IdentifierSequenceMapType::iterator mapIterator )
 		{
 			mIsValid = true;
 			mMapIterator = mapIterator;
@@ -466,12 +470,14 @@ public:
 	class const_iterator
 	{
 	private:
+		friend class FastaFile;
+
 		bool mIsValid;
 		IdentifierSequenceMapType::const_iterator mConstMapIterator;
 		size_t mVectorOffset;
 
 		const_iterator(
-			const IdentifierSequenceMapType::const_iterator& constMapIterator )
+			IdentifierSequenceMapType::const_iterator constMapIterator )
 		{
 			mIsValid = true;
 			mConstMapIterator = constMapIterator;
@@ -621,7 +627,7 @@ public:
 		 */
 		const_iterator operator++( int )
 		{
-			iterator prior( *this );
+			const_iterator prior( *this );
 			this->operator++();
 			return prior;
 		}
@@ -759,7 +765,7 @@ public:
 	 * By default, the container allows duplicate identifiers. Should false be
 	 * passed into this method, then a scan is performed to removed any
 	 * sequences that map to a shared identifier excluding the first added to this container.
-	 * @param 
+	 * @param allow Flag whether or not duplicate identifiers are allowed.
 	 */
 	void allowDuplicateIdentifiers(
 		bool allow = true )
@@ -833,9 +839,9 @@ public:
 	 * Retrieve the list of identifiers present within the container.
 	 * @return A const reference to the vector of identifiers present.
 	 */
-	const std::vector< std::string >& getIdentifiers() const
+	const std::set< std::string >& getIdentifiers() const
 	{
-		return mIdentifiersList;
+		return mIdentifiersSet;
 	}
 
 	/**
@@ -846,7 +852,7 @@ public:
 	bool hasIdentifier(
 		const std::string& identifier ) const
 	{
-		return mIdentifierSequenceMap.end() != mIdentifierSequenceMap.find( identifier );
+		return mIdentifiersSet.end() != mIdentifiersSet.find( identifier );
 	}
 
 	/**
@@ -905,6 +911,7 @@ public:
 				if ( 0 < sequence.identifier().length() )
 				{
 					sequence.setSequence( sequenceString );
+					mIdentifiersSet.insert( sequence.identifier() );
 					mIdentifierSequenceMap[ sequence.identifier() ].push_back( sequence );
 				}
 
@@ -918,6 +925,7 @@ public:
 		}
 
 		sequence.setSequence( sequenceString );
+		mIdentifiersSet.insert( sequence.identifier() );
 		mIdentifierSequenceMap[ sequence.identifier() ].push_back( sequence );
 
 		inputFile.close();

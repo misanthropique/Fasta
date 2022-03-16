@@ -782,6 +782,18 @@ public:
 	}
 
 	/**
+	 * Get the vector of FastaSequences associated with the given identifier.
+	 * @param identifier The identifier to the associated sequences.
+	 * @return Const reference to the vector of FastaSequences associated with the given identifier.
+	 * @throw std::out_of_range is thrown if no such identifier is present in the container.
+	 */
+	const std::vector< FastaSequence >& at(
+		const std::string& identifier ) const
+	{
+		return mIdentifierSequenceMap.at( identifier );
+	}
+
+	/**
 	 * Get a const_iterator to the beginning of the container.
 	 * @return A const_iterator to the beginning of the container is returned.
 	 */

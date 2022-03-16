@@ -9,6 +9,7 @@
 #include <fstream>
 #include <map>
 #include <ostream>
+#include <regex>
 #include <set>
 #include <string>
 #include <utility>
@@ -17,9 +18,12 @@
 /**
  * Notes:
  *   - Requires C++14 minimum
+ *
  * Todo:
- *   - Remove leading whitespace after removing the leading '>' on sequence identifiers.
  *   - Add support for bare sequence files.
+ *   - Add `operator[]( size_t )` to FastaSequence to access sequence characters
+ *   - Add `operator[]( string )` to FastaFile to access the vector of FastaSequence
+ *   - If the identifier changes for a sequence in the file, then we need that change reflected.
  */
 
 /**
@@ -63,6 +67,9 @@ private:
 
 		// Remove the leading '>' if present
 		mIdentifier = mIdentifier.substr( '>' == mIdentifier[ 0 ] );
+
+		// Remove any leading whitespace
+		std::regex_replace( mIdentifier, std::regex( "^\\s+" ), std::string( "" ) );
 	}
 
 	// Remove control characters and

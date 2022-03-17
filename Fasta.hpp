@@ -21,7 +21,9 @@
  *
  * Todo:
  *   - Add support for bare sequence files.
- *   - Add `operator[]( size_t )` to FastaSequence to access sequence characters
+ *   - Set IUB/IUPC amino/nucleid acid codes.
+ *   - Add detection if neither mode is set for the acid codes.
+ *   - Fill in 'Any' between end of sequence and offset for mutable access.
  *   - Add `operator[]( string )` to FastaFile to access the vector of FastaSequence
  *   - If the identifier changes for a sequence in the file, then we need that change reflected.
  */
@@ -210,6 +212,29 @@ public:
 		}
 
 		return *this;
+	}
+
+	/**
+	 * Sequence string element access.
+	 * @param index Offset from the beginning of the sequence string.
+	 * @return Reference to the character at the given offset.
+	 */
+	char& operator[](
+		size_t index )
+	{
+		return mSequence[ index ];
+	}
+
+	/**
+	 * Const sequence string element access.
+	 * @param index Offset from the beginning of the sequence string.
+	 * @return Const reference to the character at the given offset.
+	 * @throw std::out_of_range is thrown if the index is greater than the sequence length.
+	 */
+	const char& operator[](
+		size_t index ) const
+	{
+		return mSequence.at( index );
 	}
 
 	/**

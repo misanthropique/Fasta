@@ -389,6 +389,7 @@ class FastaFile
 private:
 	using IdentifierSequenceMapType = std::map< std::string, std::vector< FastaSequence > >;
 
+	bool mIsBareSequence;
 	bool mDuplicateIdentifiersAllowed;
 	std::set< std::string > mIdentifiersSet;
 	IdentifierSequenceMapType mIdentifierSequenceMap;
@@ -396,6 +397,7 @@ private:
 	void _copyAssign(
 		const FastaFile& other )
 	{
+		mIsBareSequence = other.mIsBareSequence;
 		mDuplicateIdentifiersAllowed = other.mDuplicateIdentifiersAllowed;
 		mIdentifiersSet = other.mIdentifiersSet;
 		mIdentifierSequenceMap = other.mIdentifierSequenceMap;
@@ -404,6 +406,7 @@ private:
 	void _moveAssign(
 		FastaFile&& other )
 	{
+		mIsBareSequence = std::exchange( other.mIsBareSequence, false );
 		mDuplicateIdentifiersAllowed = std::exchange( other.mDuplicateIdentifiersAllowed, true );
 		mIdentifiersSet = std::move( other.mIdentifiersSet );
 		mIdentifierSequenceMap = std::move( other.mIdentifierSequenceMap );
@@ -809,6 +812,8 @@ public:
 		const std::string& filename = std::string(),
 		bool allowDuplicates = true )
 	{
+		mIsBareSequence = false;
+
 		if ( filename.empty() )
 		{
 			mDuplicateIdentifiersAllowed = allowDuplicates;
@@ -1006,6 +1011,15 @@ public:
 		const std::string& identifier ) const
 	{
 		return mIdentifiersSet.end() != mIdentifiersSet.find( identifier );
+	}
+
+	/**
+	 * Returns true if the file is a bare sequence.
+	 * @return True is returned if the file is a bare sequence.
+	 */
+	bool isBareSequence() const
+	{
+		return mIsBareSequence;
 	}
 
 	/**

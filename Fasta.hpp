@@ -201,6 +201,58 @@ public:
 	}
 
 	/**
+	 * The lexicographical ordering of sequences is first by the identifier, then the sequence.
+	 * @param rhs The right-hand side of the comparison.
+	 * @return True is returned if this instance goes before the RHS.
+	 */
+	bool operator<(
+		const FastaSequence& rhs ) const noexcept
+	{
+		return ( mIdentifier == rhs.mIdentifier )
+			? mSequence < rhs.mSequence
+			: mIdentifier < rhs.mIdentifier;
+	}
+
+	/**
+	 * The lexicographical ordering of sequences is first by the identifier, then the sequence.
+	 * @param rhs The right-hand side of the comparison.
+	 * @return True is returned if this instance goes before, or is equal to the RHS.
+	 */
+	bool operator<=(
+		const FastaSequence& rhs ) const noexcept
+	{
+		return ( mIdentifier == rhs.mIdentifier )
+			? mSequence <= rhs.mSequence
+			: mIdentifier < rhs.mIdentifier;
+	}
+
+	/**
+	 * The lexicographical ordering of sequences is first by the identifier, then the sequence.
+	 * @param rhs The right-hand side of the comparison.
+	 * @return True is returned if this instance goes after the RHS.
+	 */
+	bool operator>(
+		const FastaSequence& rhs ) const noexcept
+	{
+		return ( mIdentifier == rhs.mIdentifier )
+			? mSequence > rhs.mSequence
+			: mIdentifier > rhs.mIdentifier;
+	}
+
+	/**
+	 * The lexicographical ordering of sequences is first by the identifier, then the sequence.
+	 * @param rhs The right-hand side of the comparison.
+	 * @return True is returned if this instance goes after, or is equal to the RHS.
+	 */
+	bool operator>=(
+		const FastaSequence& rhs ) const noexcept
+	{
+		return ( mIdentifier == rhs.mIdentifier )
+			? mSequence >= rhs.mSequence
+			: mIdentifier > rhs.mIdentifier;
+	}
+
+	/**
 	 * Check for equality of both the identifier
 	 * and the sequence; returning true if both are equal.
 	 * @param other Const reference to the FastaSequence to compare against for equality.

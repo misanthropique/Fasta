@@ -72,6 +72,16 @@ private:
 
 		// Remove any leading whitespace
 		std::regex_replace( mIdentifier, std::regex( "^\\s+" ), std::string( "" ) );
+
+		// Remove any trailing whitespace
+		std::regex_replace( mIdentifier, std::regex( "\\s+$" ), std::string( "" ) );
+	}
+
+	// Returns true for valid sequence characters.
+	bool _isValidSequenceCharacter(
+		unsigned char character )
+	{
+		return std::isalpha( character ) or ( '-' == character ) or ( '*' == character );
 	}
 
 	// Remove control characters and
@@ -83,7 +93,7 @@ private:
 				mSequence.begin(), mSequence.end(),
 				[ & ]( const unsigned char character )
 				{
-					return not ( std::isalpha( character ) or ( '-' == character ) or ( '*' == character ) );
+					return not _isValidSequenceCharacter( character );
 				} ),
 			mSequence.end() );
 	}
@@ -123,6 +133,53 @@ public:
 		const FastaSequence& other )
 	{
 		_copyAssign( other );
+	}
+
+	/**
+	 * Append a character to the sequence count times.
+	 * If the character to append is not a valid sequence character,
+	 * then nothing will be appended to the sequence.
+	 * @param character The character to append.
+	 * @param count The number of times to append the character. [default: 1]
+	 */
+	void append(
+		char character,
+		size_t count = 1 )
+	{
+		if ( ( 0 < count ) and _isValidSequenceCharacter( character ) )
+		{
+			mSequence.append( count, character );
+		}
+	}
+
+	/**
+	 * Append characters from a c-string up to count characters
+	 * or up to the null character of the string, which ever comes first.
+	 * @param sequence The c-string to append characters from.
+	 * @param count The max number of characters to append. [default: -1]
+	 */
+	void append(
+		const char* sequence,
+		size_t count = -1 )
+	{
+		if ( ( 0 < count ) and ( nullptr != sequence ) )
+		{
+			size_t length = strlen( sequence );
+			count = ( count < length ) ? count : length;
+			mSequence.append( sequence, count );
+		}
+	}
+
+	/**
+	 * Append characters from a std::string up to count characters.
+	 * @param sequence The std::string to append characters from.
+	 * @param count The max number of characters to append. [default: -1]
+	 */
+	void append(
+		const std::string& sequence,
+		size_t count = -1 )
+	{
+		this->append( sequence.c_str(), count );
 	}
 
 	/**

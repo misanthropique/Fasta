@@ -1105,7 +1105,8 @@ public:
 	/**
 	 * Write the contents of this container out to file.
 	 * @param filename Name of the file to write to.
-	 * @param lineLength Length of each sequence line. [default: 80]
+	 * @param lineLength Length of each sequence line. If {@param lineLength} is zero, then
+	 *                   the entire sequence will be on a single line. [default: 80]
 	 * @return Return zero upon success, else an error code is returned.
 	 */
 	int writeFile(
@@ -1114,6 +1115,11 @@ public:
 	{
 		std::ofstream outputFile;
 		outputFile.open( filename, std::ios::out | std::ios::trunc );
+
+		if ( 0 == lineLength )
+		{
+			lineLength = static_cast< size_t >( -1 );
+		}
 
 		for ( const auto& sequenceVector : mIdentifierSequenceMap )
 		{
